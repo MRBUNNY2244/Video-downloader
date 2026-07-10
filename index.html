@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUNNY MD WHATSAPP BOT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        /* Modern Animations */
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+            50% { box-shadow: 0 0 20px #ff0000, 0 0 40px #ff4d4d; }
+            100% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        @keyframes cyber-scan {
+            0% { top: -100%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 200%; opacity: 0; }
+        }
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+        
+        .animate-glow { animation: glow 3s infinite; }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+        
+        body {
+            background-color: #050000;
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Animated Cyber Grid Background */
+        .cyber-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(255, 0, 0, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 3s linear infinite;
+            z-index: -2;
+        }
+
+        /* Overlay to fade grid */
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, #050000 90%);
+            z-index: -1;
+        }
+
+        .scanning-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 0, 0, 0.8);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 1), 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: cyber-scan 4s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .stat-font { font-family: 'Share Tech Mono', monospace; }
+        
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(15, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(255, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-gray-100 py-10 px-4">
+    
+    <div class="cyber-grid"></div>
+    <div class="bg-overlay"></div>
+
+    <div class="glass-card p-8 rounded-2xl w-full max-w-md text-center animate-float relative overflow-hidden">
+        <!-- Scanning Effect -->
+        <div class="scanning-line"></div>
+
+        <!-- Red Glow behind the card -->
+        <div class="absolute -z-10 inset-0 blur-3xl bg-red-600/10 rounded-full"></div>
+
+        <div class="mx-auto w-24 h-24 bg-gradient-to-tr from-red-700 to-black rounded-full flex items-center justify-center mb-6 border border-red-500 animate-glow">
+            <i class="fa-brands fa-whatsapp text-5xl text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"></i>
+        </div>
+
+        <!-- ORIGINAL TEXT RETAINED -->
+        <h2 class="text-3xl font-black mb-1 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-300 uppercase drop-shadow-sm">BUNNY MD</h2>
+        <p class="text-xs font-bold text-red-400 tracking-[0.3em] mb-4">WHTSAPP BOT</p>
+        
+        <p class="text-gray-400 text-sm mb-6 italic">Enter your number with country code to start hacking sessions.</p>
+
+        <div class="space-y-4 relative z-20">
+            <input type="text" id="phoneInput" placeholder="923001234567" 
+                class="w-full px-4 py-3 bg-black/50 border border-red-900/50 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-white placeholder-gray-600 text-center text-lg tracking-wider transition-all duration-300 shadow-inner">
+            
+            <button id="connectBtn" onclick="requestPairingCode()" 
+                class="w-full bg-gradient-to-r from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-white font-black py-3 px-4 rounded-lg transition-all duration-300 flex justify-center items-center shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:shadow-[0_0_25px_rgba(255,0,0,0.6)] hover:scale-[1.02] uppercase tracking-widest border border-red-500/50">
+                <span id="btnText">Get Pairing Code</span>
+                <i id="spinner" class="fa-solid fa-circle-notch fa-spin hidden ml-2"></i>
+            </button>
+        </div>
+
+        <div id="codeContainer" class="hidden mt-6 p-4 bg-black/60 rounded-lg border border-red-500/50 flex justify-between items-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="text-left relative z-10">
+                <span class="text-[10px] text-red-400 font-bold block mb-1 uppercase tracking-widest">Your Pairing Code:</span>
+                <span id="pairingCode" class="text-2xl font-mono font-bold text-white tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">---- ----</span>
+            </div>
+            <button onclick="copyCode()" class="relative z-10 text-red-500 hover:text-white hover:scale-110 transition-all cursor-pointer p-2 bg-red-900/30 rounded-md border border-red-900/50">
+                <i class="fa-regular fa-copy text-xl"></i>
+            </button>
+        </div>
+
+        <!-- NEW: Professional Server Statistics -->
+        <div class="mt-8 pt-5 border-t border-red-900/50 relative z-20">
+            <div class="flex items-center justify-center gap-2 mb-3">
+                <i class="fa-solid fa-server text-red-500 text-xs"></i>
+                <h3 class="text-xs text-gray-300 font-bold uppercase tracking-widest">Server Statistics</h3>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs stat-font text-left">
+                <div class="bg-black/40 p-2 rounded border border-red-900/30 flex items-center justify-between">
+                    <span class="text-gray-500">Status</span>
+                    <span class="text-green-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>Online</span>
+                </div>
+                <div class="bg-black/40 p-2 rounded border border-red-900/30 flex items-center justify-between">
+                    <span class="text-gray-500">Uptime</span>
+                    <span class="text-blue-400">99.9%</span>
+                </div>
+                <div class="bg-black/40 p-2 rounded border border-red-900/30 flex items-center justify-between">
+                    <span class="text-gray-500">Latency</span>
+                    <span class="text-yellow-400">18ms</span>
+                </div>
+                <div class="bg-black/40 p-2 rounded border border-red-900/30 flex items-center justify-between">
+                    <span class="text-gray-500">CPU Load</span>
+                    <span class="text-purple-400">4.2%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Social Links -->
+        <div class="flex justify-center gap-3 mt-6 relative z-20">
+            <a href="https://t.me/bunny_devs" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-[#0088cc]/10 text-[#0088cc] border border-[#0088cc]/30 py-2.5 rounded-lg hover:bg-[#0088cc] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_rgba(0,136,204,0.5)]">
+                <i class="fa-brands fa-telegram text-lg"></i>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Telegram</span>
+            </a>
+            <a href="https://whatsapp.com/channel/0029Vb6wZDWHltYEgP5Jz40K" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30 py-2.5 rounded-lg hover:bg-[#25D366] hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,211,102,0.5)]">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span class="text-[10px] font-bold uppercase tracking-widest">WhatsApp</span>
+            </a>
+        </div>
+
+        <!-- ORIGINAL FOOTER TEXT RETAINED -->
+        <p class="mt-6 text-[10px] text-red-900/80 font-bold uppercase tracking-widest relative z-20">© Powered by Bunny MD</p>
+    </div>
+
+    <!-- ORIGINAL JAVASCRIPT RETAINED EXACTLY -->
+    <script>
+        async function requestPairingCode() {
+            const phone = document.getElementById('phoneInput').value.replace(/[^0-9]/g, '');
+            if (!phone) {
+                alert("Please enter a valid number!");
+                return;
+            }
+
+            document.getElementById('btnText').innerText = "LINKING...";
+            document.getElementById('spinner').classList.remove('hidden');
+            document.getElementById('connectBtn').disabled = true;
+
+            try {
+                const response = await fetch('/pair?phone=' + phone);
+                const code = await response.text();
+                
+                if (response.ok) {
+                    document.getElementById('pairingCode').innerText = code;
+                    document.getElementById('codeContainer').classList.remove('hidden');
+                } else {
+                    alert("Error: " + code);
+                }
+            } catch (error) {
+                alert("Failed to connect to server.");
+            } finally {
+                document.getElementById('btnText').innerText = "Get Pairing Code";
+                document.getElementById('spinner').classList.add('hidden');
+                document.getElementById('connectBtn').disabled = false;
+            }
+        }
+
+        function copyCode() {
+            const code = document.getElementById('pairingCode').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Code Copied Successfully!");
+            });
+        }
+    </script>
+</body>
+</html>
